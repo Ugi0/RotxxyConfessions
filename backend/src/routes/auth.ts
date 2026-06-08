@@ -1,40 +1,42 @@
+import { Request, Response } from "express";
 import { IncomingMessage, ServerResponse } from "http";
-import sendJson from "../utils/sendJson.js";
 import { createUser, getUserBySessionId } from "../services/users.js";
 import { HelixUsersResponse, TwitchTokenResponse, TwitchUser } from "../types/auth.js";
-import { getUserRole, parseCookies } from "../utils/auth.js";
+import { getUserRole } from "../utils/auth.js";
 
 const pendingStates = new Set<string>();
 
-export async function handleAuthCallback(req: IncomingMessage, res: ServerResponse, url: URL): Promise<IncomingMessage | ServerResponse | void> {
-  if (url.pathname === "/auth/login") {
-    const state = crypto.randomUUID();
-    pendingStates.add(state);
+export async function handleValidation(req: Request, res: Response): Promise<void> {
+  const sessionId = req.cookies?.user_session_id;
 
-    const authUrl = new URL("https://id.twitch.tv/oauth2/authorize");
-    authUrl.searchParams.set("client_id", requiredEnv("TWITCH_CLIENT_ID"));
-    authUrl.searchParams.set("redirect_uri", requiredEnv("TWITCH_REDIRECT_URI"));
-    authUrl.searchParams.set("response_type", "code");
-    authUrl.searchParams.set(
-      "scope",
-      "user:read:email"
-    );
-    authUrl.searchParams.set("state", state);
-
-    res.writeHead(302, { Location: authUrl.toString() });
-    return res.end();
+  if (!sessionId) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
   }
 
-  if (url.pathname.startsWith("/auth/callback")) {
-    const code = url.searchParams.get("code");
-    const state = url.searchParams.get("state");
+  const user = await getUserBySessionId(sessionId);
+
+  if (!user) {
+    res.status(401).json({ error: "Unauthorized" });
+    return;
+  }
+
+  res.status(200).json({ role: user.role });
+}
+
+
+export async function handleCallback(req: Request, res: Response): Promise<IncomingMessage | ServerResponse | void> {
+    const { code, state } = req.query as {
+        code?: string;
+        state?: string;
+    };
 
     if (!code || !state) {
-      return sendJson(res, 400, { error: "Missing code or state" });
+      return res.status(400).json({ error: "Missing code or state" });
     }
 
     if (!pendingStates.has(state)) {
-      return sendJson(res, 400, { error: "Invalid OAuth state" });
+      return res.status(400).json({ error: "Invalid OAuth state" });
     }
 
     pendingStates.delete(state);
@@ -44,13 +46,13 @@ export async function handleAuthCallback(req: IncomingMessage, res: ServerRespon
     const userData: TwitchUser = await getUserProfile(tokenData.access_token);
 
     if (!userData) {
-      return sendJson(res, 500, { error: "Failed to fetch user profile" });
+      return res.status(500).json({ error: "Failed to fetch user profile" });
     }
 
     const role = getUserRole(userData.login);
 
     if (role == "user") {
-        return sendJson(res, 403, { error: "Access denied" });
+        return res.status(403).json({ error: "Access denied" });
     }
 
     const sessionId = crypto.randomUUID();
@@ -65,25 +67,45 @@ export async function handleAuthCallback(req: IncomingMessage, res: ServerRespon
     const redirectUrl = role === "streamer" ? "/streamer" : "/moderator";
     res.writeHead(302, { Location: redirectUrl });
     return res.end();
+}
+
+export async function handleLogin(req: Request, res: Response): Promise<void> {
+    const state = crypto.randomUUID();
+    pendingStates.add(state);
+
+    const authUrl = new URL("https://id.twitch.tv/oauth2/authorize");
+    authUrl.searchParams.set("client_id", requiredEnv("TWITCH_CLIENT_ID"));
+    authUrl.searchParams.set("redirect_uri", requiredEnv("TWITCH_REDIRECT_URI"));
+    authUrl.searchParams.set("response_type", "code");
+    authUrl.searchParams.set(
+      "scope",
+      "user:read:email"
+    );
+    authUrl.searchParams.set("state", state);
+
+    res.redirect(authUrl.toString());
+}
+
+export async function exchangeCodeForToken(
+  code: string
+): Promise<TwitchTokenResponse> {
+  const resp = await fetch("https://id.twitch.tv/oauth2/token", {
+    method: "POST",
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+    body: new URLSearchParams({
+      client_id: process.env.TWITCH_CLIENT_ID!,
+      client_secret: process.env.TWITCH_CLIENT_SECRET!,
+      code,
+      grant_type: "authorization_code",
+      redirect_uri: process.env.TWITCH_REDIRECT_URI!,
+    }),
+  });
+
+  if (!resp.ok) {
+    throw new Error(`Exchange code failed: ${resp.status}`);
   }
 
-  if (url.pathname.startsWith("/auth/validate")) {
-    const cookies = parseCookies(req);
-    const sessionId = cookies.user_session_id;
-
-    if (!sessionId) {
-      return sendJson(res, 401, { error: "Unauthorized" });
-    }
-
-    const user = await getUserBySessionId(sessionId);
-    if (!user) {
-      return sendJson(res, 401, { error: "Unauthorized" });
-    }
-
-    return sendJson(res, 200, { role: user.role });
-  }
-
-  sendJson(res, 404, { error: "Not found" });
+  return resp.json();
 }
 
 function requiredEnv(name: string): string {
@@ -110,26 +132,4 @@ async function getUserProfile(
 
   const json = (await resp.json()) as HelixUsersResponse;
   return json.data?.[0] ?? null;
-}
-
-export async function exchangeCodeForToken(
-  code: string
-): Promise<TwitchTokenResponse> {
-  const resp = await fetch("https://id.twitch.tv/oauth2/token", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      client_id: process.env.TWITCH_CLIENT_ID!,
-      client_secret: process.env.TWITCH_CLIENT_SECRET!,
-      code,
-      grant_type: "authorization_code",
-      redirect_uri: process.env.TWITCH_REDIRECT_URI!,
-    }),
-  });
-
-  if (!resp.ok) {
-    throw new Error(`Exchange code failed: ${resp.status}`);
-  }
-
-  return resp.json();
 }
