@@ -1,0 +1,166 @@
+.confession-page {
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.confession-content {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.confession-box {
+    width: 100%;
+    max-width: 1000px;
+
+    .composer {
+        background: #101216;
+        border: 1px solid #1a1d23;
+        border-radius: 14px;
+        padding: 24px 24px 14px 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        box-shadow: 0 0 0 1px rgba(158, 203, 255, 0.08);
+
+        textarea {
+            width: 100%;
+            min-height: 140px;
+            resize: none;
+            outline: none;
+            overflow: hidden;
+            background: transparent;
+            border: none;
+            color: #e9edf2;
+            font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+            font-size: 22px;
+            line-height: 1.45;
+            letter-spacing: -0.01em;
+        }
+    }
+}
+
+.actions {
+    display: flex;
+    justify-content: space-between;
+    border-top: 1px solid #1a1d23;
+    padding-top: 14px;
+
+    #title input {
+        background: transparent;
+        height: 100%;
+        border: none;
+        outline: none;
+        color: #e9edf2;
+        font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+        font-size: 14px;
+        letter-spacing: -0.005em;
+    }
+
+    .options {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+
+        #category {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            height: 34px;
+            padding: 0px 6px;
+            font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 8px;
+            letter-spacing: -0.005em;
+            transition: all .15s;
+            background: transparent;
+            color: #e9edf2;
+            border: 1px solid #252932;
+
+            option {
+                background: #252932;
+                border: none;
+                color: #e9edf2;
+                font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+                font-size: 13px;
+                font-weight: 500;
+                letter-spacing: -0.005em;
+            }
+        }
+    }
+}
+
+.buttons {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+
+    .cancel {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        height: 34px;
+        padding: 0 14px;
+        font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        border-radius: 8px;
+        letter-spacing: -0.005em;
+        transition: all .15s;
+        opacity: 1;
+        background: transparent;
+        color: #e9edf2;
+        border: 1px solid #252932;
+    }
+
+    .submit {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        height: 34px;
+        padding: 0 14px;
+        font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        border-radius: 8px;
+        letter-spacing: -0.005em;
+        transition: all .15s;
+        background: #9ecbff;
+        color: #0a1424;
+        border: 1px solid #9ecbff;
+    }
+
+    .submit.disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+    }
+}
+
+.options-container {
+    display: flex;
+}
+
+h1 {
+    font-family: 'Geist', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-weight: bold;
+    color: #e9edf2;
+    font-size: 56px;
+    letter-spacing: 3px;
+    padding: 10px;
+    margin: 32px 0;
+
+    @media (max-width: 1024px) {
+        font-size: 36px;
+        margin: 20px 0;
+    }
+}

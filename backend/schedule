@@ -1,0 +1,5 @@
+SELECT cron.schedule(
+  'cleanup_sessions',
+  '0 * * * *',
+  $$DELETE FROM sessions WHERE expires_at < NOW()$$
+);

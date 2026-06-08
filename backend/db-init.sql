@@ -1,0 +1,18 @@
+CREATE TABLE IF NOT EXISTS confessions (
+    id SERIAL PRIMARY KEY,
+    content VARCHAR(800) NOT NULL,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    NSFW BOOLEAN DEFAULT FALSE,
+    category VARCHAR(20) DEFAULT 'Other',
+    is_reviewed BOOLEAN DEFAULT FALSE,
+    is_approved BOOLEAN DEFAULT FALSE,
+    is_read BOOLEAN DEFAULT FALSE
+);
+
+CREATE TABLE IF NOT EXISTS sessions (
+    session_id VARCHAR(255) PRIMARY KEY,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    expires_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '1 day'
+);
+
+CREATE EXTENSION IF NOT EXISTS pg_cron;

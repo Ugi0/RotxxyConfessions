@@ -1,0 +1,54 @@
+services:
+  confession-frontend:
+    build:
+      context: frontend
+      dockerfile: Dockerfile
+      target: dev
+    container_name: frontend-dev
+    ports:
+      - "80:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    restart: on-failure
+
+  confession-backend:
+    build:
+      context: backend
+      target: dev
+    container_name: backend-dev
+    env_file:
+      - backend/.env
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    restart: on-failure
+
+  confession-database:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.postgres
+    container_name: confession-database
+    env_file:
+      - backend/.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./backend/db-init.sql:/docker-entrypoint-initdb.d/db-init.sql:ro
+    restart: on-failure
+    command: postgres
+      -c shared_preload_libraries=pg_cron 
+      -c cron.database_name=confessions
+    environment:
+      - PG_CRON_DATABASE_NAME=confessions
+
+
+volumes:
+  pgdata:
