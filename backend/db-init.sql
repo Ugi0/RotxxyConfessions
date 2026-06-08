@@ -15,4 +15,13 @@ CREATE TABLE IF NOT EXISTS sessions (
     expires_at TIMESTAMPTZ DEFAULT NOW() + INTERVAL '1 day'
 );
 
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    session_id VARCHAR(255) NOT NULL,
+    twitch_id VARCHAR(255) UNIQUE NOT NULL,
+    username VARCHAR(255) NOT NULL,
+    role VARCHAR(20) DEFAULT 'user',
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 CREATE EXTENSION IF NOT EXISTS pg_cron;

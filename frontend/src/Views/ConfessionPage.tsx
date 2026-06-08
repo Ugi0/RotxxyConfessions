@@ -1,5 +1,5 @@
 import "./ConfessionPage.css";
-import ConfessionBox from "./ConfessionBox";
+import ConfessionBox from "../components/ConfessionBox";
 import { useEffect } from "react";
 
 export default function ConfessionPage() {
