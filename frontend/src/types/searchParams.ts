@@ -1,11 +1,3 @@
-export type Confession = {
-  id: number;
-  content: string;
-  title: string;
-  category: string;
-  isNSFW: boolean;
-};
-
 export type SearchParams = {
   id?: number;
   content?: string;

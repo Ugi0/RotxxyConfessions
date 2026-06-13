@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { AuthContext, type Props } from "../types/authContext";
+import { AuthContext, type Props, type User } from "../types/authContext";
 
 export const AuthProvider: React.FC<Props> = ({ children }) => {
-  const [currentRole, setCurrentRole] = useState<"streamer" | "moderator" | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   const fetchSession = async () => {
@@ -13,15 +13,18 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
       });
 
       if (!res.ok) {
-        setCurrentRole(null);
+        setCurrentUser(null);
         return;
       }
 
-      const data = await res.json();
-      setCurrentRole(data.role);
+      const data = await res.json() as User;
+
+      console.log("Session valid, user data:", data);
+
+      setCurrentUser(data);
     } catch (error) {
       console.error("Auth check failed", error);
-      setCurrentRole(null);
+      setCurrentUser(null);
     }
   };
 
@@ -38,7 +41,7 @@ export const AuthProvider: React.FC<Props> = ({ children }) => {
   return (
     <AuthContext.Provider
       value={{
-        currentRole,
+        currentUser: currentUser,
         isLoading,
         refresh: fetchSession,
       }}

@@ -1,21 +1,61 @@
-import { useEffect, useState } from "react";
-
-interface Confession {
-  id: string;
-  text: string;
-  status: string;
-}
+import { useContext, useEffect, useRef, useState } from "react";
+import { categories, type Confession } from "../types/Confession";
+import ConfessionCard from "../components/ConfessionCard";
+import "./ModeratorView.css";
+import { AuthContext } from "../types/authContext";
+import { logout } from "../helpers/actions";
+import type { SearchParams } from "../types/searchParams";
 
 export default function ModeratorView() {
   const [confessions, setConfessions] = useState<Confession[]>([]);
+  const currentUser = useContext(AuthContext).currentUser;
+
+  const [searchParams, setSearchParams] = useState<SearchParams>();
+
+  const [openProfile, setOpenProfile] = useState(false);
+  const menuRef = useRef<HTMLDivElement | null>(null);
+
+  const toggleMenu = () => {
+    setOpenProfile(prev => !prev);
+  };
 
   useEffect(() => {
-    fetch("/api/confessions?status=pending", {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setOpenProfile(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    let url = "/api/confessions?status=pending";
+
+    if (searchParams) {
+      const { content, category, isNSFW, orderBy, orderDirection, reviewStatus } = searchParams;
+      const params = new URLSearchParams();
+
+      if (content) params.append("content", content);
+      if (category) params.append("category", category);
+      if (isNSFW !== undefined) params.append("isNSFW", isNSFW.toString());
+      if (orderBy) params.append("orderBy", orderBy);
+      if (orderDirection) params.append("orderDirection", orderDirection);
+      if (reviewStatus) params.append("reviewStatus", reviewStatus);
+
+      url += `&${params.toString()}`;
+    }
+
+    fetch(url, {
       credentials: "include",
     })
       .then(res => res.json())
-      .then(data => setConfessions(data));
-  }, []);
+      .then(data => setConfessions(data !== null ? data : []));
+  }, [searchParams]);
 
   const handleAction = async (id: string, action: string) => {
     await fetch(`/api/confessions/${id}/${action}`, {
@@ -23,26 +63,83 @@ export default function ModeratorView() {
       credentials: "include",
     });
 
-    // remove from UI instantly
     setConfessions(prev => prev.filter(c => c.id !== id));
   };
 
   return (
-    <div>
-      <h1>Moderator Dashboard</h1>
-
-      {confessions.map(c => (
-        <div key={c.id} style={{ border: "1px solid gray", margin: 10, padding: 10 }}>
-          <p>{c.text}</p>
-
-          <button onClick={() => handleAction(c.id, "approve")}>
-            Approve
+    <div className="moderator-view">
+      <div className="header">
+        <button className="reviewed-button">
+          Reviewed Confessions
+        </button>
+        <h2>{`Pending Confessions (${confessions.length})`}</h2>
+        
+        <div className="profile-container" ref={menuRef}>
+          <button className="profile-button" onClick={toggleMenu}>
+            <img
+              src={currentUser?.profileImageUrl}
+              alt="Profile"
+              className="moderator-icon"
+            />
           </button>
-          <button onClick={() => handleAction(c.id, "reject")}>
-            Reject
-          </button>
+
+          {openProfile && (
+            <div className="profile-menu">
+              <p>{currentUser?.username}</p>
+              <button onClick={logout}>Logout</button>
+            </div>
+          )}
         </div>
-      ))}
-    </div>
+
+      </div>
+      <div className="confession-container">
+        <div className="outer-filter-container">
+          <div className="filter-container">
+            <div className="search-bar">
+              <input type="text" placeholder="Search confessions..." onChange={(e) => setSearchParams({...searchParams, content: e.target.value})} />
+            </div>
+            <div className="filter-options">
+              <select onChange={(e) => setSearchParams({...searchParams, category: e.target.value})}>
+                <option value="">All Categories</option>
+                {
+                  categories.map(cat => (
+                    <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                  ))
+                }
+              </select>
+            </div>
+            <div className="NSFW-toggle">
+              <label>
+                <input type="checkbox" onChange={(e) => setSearchParams({...searchParams, isNSFW: e.target.checked})} />
+                NSFW
+              </label>
+            </div>
+            <div className="sort-options">
+              <p>Sort by:</p>
+              <select onChange={(e) => setSearchParams({...searchParams, orderBy: e.target.value as "createdAt" | "title"})}>
+                <option value="createdAt">Newest</option>
+                <option value="title">Title</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div className="confession-grid">
+          {confessions.map(c => (
+            <div key={c.id} className="confession-item">
+              <ConfessionCard confession={c} />
+
+              <div className="action-buttons">
+                <button onClick={() => handleAction(c.id!, "reject")}>
+                  Reject
+                </button>
+                <button onClick={() => handleAction(c.id!, "approve")}>
+                  Approve
+                </button>
+              </div>
+          </div>
+          ))}
+        </div>
+        </div>
+      </div>
   );
 }

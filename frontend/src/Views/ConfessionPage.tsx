@@ -1,18 +1,11 @@
 import "./ConfessionPage.css";
 import ConfessionBox from "../components/ConfessionBox";
 import { useEffect } from "react";
+import { refreshToken } from "../helpers/submitConfession";
 
 export default function ConfessionPage() {
   useEffect(() => {
-    fetch("/api/confession", {
-      method: "GET",
-      credentials: "include",
-    })
-      .then(res => res.json())
-      .then(data => {
-        console.log("Session created:", data.sessionId);
-      })
-      .catch(err => console.error(err));
+    refreshToken();
   }, []);
 
   return (

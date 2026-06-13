@@ -1,0 +1,111 @@
+.header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #274886;
+
+    .reviewed-button {
+        margin: 10px;
+    }
+}
+
+.confession-container {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+
+    .confession-item {
+         .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+    }
+}
+
+.profile-button {
+    background-color: #274886;
+    border: none;
+    cursor: pointer;
+
+    img {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+}
+
+.outer-filter-container {
+    background-color: #1a1d23;
+    height: 100vh;
+}
+
+.filter-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    width: fit-content;
+    height: 20vh;
+    padding: 20px;
+
+    .NSFW-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+
+        input {
+            width: 20px;
+            height: 20px;
+        }
+    }
+}
+
+.confession-grid {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 500px));
+    gap: 20px;
+    padding: 20px;
+    justify-content: center;
+}
+
+
+.profile-container {
+  position: relative;
+  display: inline-block;
+}
+
+.profile-menu {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  top: 50px;
+  right: 0;
+  z-index: 1;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 10px;
+
+  min-width: 150px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  margin: 0 10px;
+
+  p {
+    font-size: 20px;
+    font-weight: bold;
+    color: black;
+  }
+
+  button {
+    color: black;
+    background: #ccc;
+    width: 100px;
+    margin: 10px 0 0 0;
+    align-self: center;
+  }
+}

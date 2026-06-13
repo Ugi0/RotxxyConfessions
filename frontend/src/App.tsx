@@ -3,7 +3,7 @@ import ConfessionPage from "./Views/ConfessionPage";
 import Login from "./Views/Login";
 import StreamerView from "./Views/StreamerView";
 import ModeratorView from "./Views/ModeratorView";
-import { AuthProvider } from "./components/authProvider";
+import { AuthProvider } from "./components/AuthProvider";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 export default function App() {

@@ -15,10 +15,12 @@ app.get("/api/healthz", (req, res) => {
 });
 
 app.use("/api/auth/login", handleLogin);
+app.use("/api/auth/logout", handleLogin);
 app.use("/api/auth/validate", handleValidation);
 app.use("/api/auth/callback", handleCallback);
 app.get("/api/confessions", handleConfessionsRoute);
 app.get("/api/confession", handleConfessionRoute);
+app.post("/api/confession", handleConfessionRoute);
 app.get("/api/confession/:id", handleConfessionRoute);
 app.post("/api/confessions/:id/approve", (req, res) => {
   res.json({ message: "Approved " + req.params.id });

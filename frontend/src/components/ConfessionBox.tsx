@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { submitConfession } from "../helpers/submitConfession";
-import type { Confession } from "../types/Confession";
+import { categories, type Confession } from "../types/Confession";
 
 export default function ConfessionBox () {
     const [text, setText] = useState("");
@@ -12,7 +12,7 @@ export default function ConfessionBox () {
         if (!text.trim()) return;
 
         const newConfession = {
-            text,
+            content: text,
             title,
             category,
             isNSFW
@@ -49,19 +49,17 @@ export default function ConfessionBox () {
                 </div>
                 <div className="actions">
                     <div id="title">
-                        <input type="text" id="title-input" placeholder="Title (optional)" value={title} onChange={(e) => setTitle(e.target.value)} />
+                        <input type="text" id="title-input" placeholder="Title (optional)" value={title} onChange={(e) => setTitle(e.target.value.slice(0, 50))} />
                     </div>
                     <div className="options">
                         <div>
                             <select id="category" value={category} onChange={(e) => setCategory(e.target.value)}>
-                                <option value="">Select category (optional)</option>
-                                <option value="school">School</option>
-                                <option value="work">Work</option>
-                                <option value="family">Family</option>
-                                <option value="relationships">Relationships</option>
-                                <option value="fantasy">A fantasy</option>
-                                <option value="guilt">A guilt</option>
-                                <option value="other">Other</option>
+                                <option value="">Select Category (optional)</option>
+                                {
+                                    categories.map(cat => (
+                                        <option key={cat} value={cat}>{cat.charAt(0).toUpperCase() + cat.slice(1)}</option>
+                                    ))
+                                }
                             </select>
                         </div>
                         <div className="nsfw">

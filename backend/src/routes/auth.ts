@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { IncomingMessage, ServerResponse } from "http";
-import { createUser, getUserBySessionId } from "../services/users.js";
+import { createUser, getUserBySessionId, removeUserSession } from "../services/users.js";
 import { HelixUsersResponse, TwitchTokenResponse, TwitchUser } from "../types/auth.js";
 import { getUserRole } from "../utils/auth.js";
 
@@ -21,7 +21,7 @@ export async function handleValidation(req: Request, res: Response): Promise<voi
     return;
   }
 
-  res.status(200).json({ role: user.role });
+  res.status(200).json({username: user.username, role: user.role, profileImageUrl: user.profileImageUrl});
 }
 
 
@@ -56,9 +56,8 @@ export async function handleCallback(req: Request, res: Response): Promise<Incom
     }
 
     const sessionId = crypto.randomUUID();
-    console.log("User authenticated:", userData.login, "Session ID:", sessionId);
 
-    await createUser(userData.id, userData.display_name, role, sessionId);
+    await createUser(userData.id, userData.display_name, userData.profile_image_url, role, sessionId);
 
     res.setHeader("Set-Cookie", [
       `user_session_id=${sessionId}; Path=/; HttpOnly; Secure; SameSite=Lax;} max-age=${6 * 30 * 24 * 60 * 60}`,
@@ -84,6 +83,16 @@ export async function handleLogin(req: Request, res: Response): Promise<void> {
     authUrl.searchParams.set("state", state);
 
     res.redirect(authUrl.toString());
+}
+
+export async function handleLogout(req: Request, res: Response): Promise<void> {
+  const sessionId = req.cookies?.user_session_id;
+
+  if (sessionId) {
+    await removeUserSession(sessionId);
+  }
+
+  res.status(200).json({ message: "Logged out successfully" });
 }
 
 export async function exchangeCodeForToken(

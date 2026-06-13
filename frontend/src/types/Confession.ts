@@ -1,6 +1,20 @@
 export type Confession = {
-  text: string;
+  id?: string;
+  content: string;
   title: string;
-  category: string;
+  category: Category;
   isNSFW: boolean;
 };
+
+export type ConfessionStatus = "pending" | "approved" | "rejected";
+export type Category = typeof categories[number];
+
+export const categories = [
+    "school",
+    "work",
+    "family",
+    "relationships",
+    "fantasy",
+    "guilt",
+    "other"
+];

@@ -8,17 +8,17 @@ interface Props {
 }
 
 export default function ProtectedRoute({ children, roles }: Props) {
-  const { currentRole, isLoading } = useContext(AuthContext);
+  const { currentUser, isLoading } = useContext(AuthContext);
 
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!currentRole) {
+  if (!currentUser) {
     return <Navigate to="/login" replace />;
   }
 
-  if (roles.includes(currentRole)) {
+  if (roles.includes(currentUser.role)) {
     return <>{children}</>;
   }
 

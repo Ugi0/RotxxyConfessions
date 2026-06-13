@@ -1,5 +1,5 @@
 services:
-  confession-frontend:
+  frontend:
     build:
       context: frontend
       dockerfile: Dockerfile
@@ -14,7 +14,7 @@ services:
       - NODE_ENV=development
     restart: on-failure
 
-  confession-backend:
+  backend:
     build:
       context: backend
       target: dev
@@ -30,7 +30,7 @@ services:
       - NODE_ENV=development
     restart: on-failure
 
-  confession-database:
+  database:
     build:
       context: ./backend
       dockerfile: Dockerfile.postgres

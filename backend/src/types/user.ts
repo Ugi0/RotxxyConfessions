@@ -5,4 +5,5 @@ export type User = {
   username: string;
   role: "user" | "moderator" | "streamer";
   createdAt: Date;
+  profileImageUrl: string;
 };

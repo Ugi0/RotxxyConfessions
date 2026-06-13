@@ -12,7 +12,7 @@ export default defineConfig(({ command }) => ({
       },
       proxy: {
         '/api': {
-          target: 'http://confession-backend:8080',
+          target: 'http://backend:8080',
           changeOrigin: true,
         }
       }

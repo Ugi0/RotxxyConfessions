@@ -38,8 +38,8 @@ export async function handleConfessionRoute(req: Request, res: Response): Promis
 
     const confessionData = req.body as Confession;
 
-    if (!confessionData?.text) {
-      res.status(400).json({ error: "Confession text is required" });
+    if (!confessionData?.content) {
+      res.status(400).json({ error: "Confession content is required" });
       return;
     }
 
