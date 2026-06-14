@@ -9,9 +9,29 @@ export async function insertConfession(confession: Confession): Promise<void> {
 }
 
 export async function getConfessions(params: SearchParams): Promise<Confession[]> {
-  let query = `SELECT * FROM confessions`;
+  let query = `
+    SELECT 
+      id as id,
+      content as content,
+      title as title,
+      category as category,
+      NSFW as "isNSFW",
+      is_reviewed as "isReviewed",
+      is_approved as "isApproved",
+      is_read as "isViewed",
+      created_at as "createdAt"
+    FROM confessions
+  `;
   const values: unknown[] = [];
   const conditions: string[] = [];
+
+  if (params.reviewStatus) {
+    if (params.reviewStatus === "pending") {
+      conditions.push(`is_reviewed = false`);
+    } else if (params.reviewStatus === "reviewed") {
+      conditions.push(`is_reviewed = true`);
+    }
+  }
 
   if (params.content) {
     values.push(`%${params.content}%`);
@@ -46,11 +66,30 @@ export async function getConfessions(params: SearchParams): Promise<Confession[]
 }
 
 export async function getConfessionById(id: string): Promise<Confession | null> {
-  const query = `SELECT * FROM confessions WHERE id = $1`;
+  const query = `
+    SELECT 
+      id as id,
+      content as content,
+      title as title,
+      category as category,
+      NSFW as "isNSFW",
+      is_reviewed as "isReviewed",
+      is_approved as "isApproved",
+      is_read as "isViewed",
+      created_at as "createdAt"
+    FROM confessions 
+    WHERE id = $1`;
 
   const result = await db.query<Confession>(query, [id]);
   if (result.rows.length === 0) {
     return null;
   }
+  
   return result.rows[0] as Confession;
+}
+
+export async function updateConfessionStatus(id: string, isReviewed: boolean, isApproved: boolean, isViewed: boolean): Promise<void> {
+  const query = `UPDATE confessions SET is_reviewed = $1, is_approved = $2, is_read = $3 WHERE id = $4`;
+
+  await db.query(query, [isReviewed, isApproved, isViewed, id]);
 }

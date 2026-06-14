@@ -10,7 +10,9 @@ export default function ModeratorView() {
   const [confessions, setConfessions] = useState<Confession[]>([]);
   const currentUser = useContext(AuthContext).currentUser;
 
-  const [searchParams, setSearchParams] = useState<SearchParams>();
+  const [searchParams, setSearchParams] = useState<SearchParams>(
+    { reviewStatus: "pending" }
+  );
 
   const [openProfile, setOpenProfile] = useState(false);
   const menuRef = useRef<HTMLDivElement | null>(null);
@@ -34,7 +36,7 @@ export default function ModeratorView() {
   }, []);
 
   useEffect(() => {
-    let url = "/api/confessions?status=pending";
+    let url = "/api/confessions";
 
     if (searchParams) {
       const { content, category, isNSFW, orderBy, orderDirection, reviewStatus } = searchParams;
@@ -47,7 +49,7 @@ export default function ModeratorView() {
       if (orderDirection) params.append("orderDirection", orderDirection);
       if (reviewStatus) params.append("reviewStatus", reviewStatus);
 
-      url += `&${params.toString()}`;
+      url += `?${params.toString()}`;
     }
 
     fetch(url, {
@@ -69,10 +71,10 @@ export default function ModeratorView() {
   return (
     <div className="moderator-view">
       <div className="header">
-        <button className="reviewed-button">
-          Reviewed Confessions
+        <button className="reviewed-button" onClick={() => setSearchParams({...searchParams, reviewStatus: searchParams.reviewStatus === "reviewed" ? "pending" : "reviewed"})}>
+          {searchParams.reviewStatus === "reviewed" ? "Show Pending" : "Show Reviewed"} Confessions
         </button>
-        <h2>{`Pending Confessions (${confessions.length})`}</h2>
+        <h2>{`${searchParams.reviewStatus === "reviewed" ? "Reviewed" : "Pending"} Confessions (${confessions.length})`}</h2>
         
         <div className="profile-container" ref={menuRef}>
           <button className="profile-button" onClick={toggleMenu}>
@@ -128,14 +130,30 @@ export default function ModeratorView() {
             <div key={c.id} className="confession-item">
               <ConfessionCard confession={c} />
 
+              {searchParams.reviewStatus === "reviewed" && (
+                <div className="action-buttons">
+                  <span className={`status ${c.isApproved ? "approved" : "rejected"}`}>
+                    {c.isApproved ? "Approved" : "Rejected"}
+                  </span>
+                  <button onClick={() => handleAction(c.id!, "rereview")}>
+                    Review again
+                  </button>
+                </div>
+                )
+              }
+              
+              {searchParams.reviewStatus === "pending" && (
               <div className="action-buttons">
-                <button onClick={() => handleAction(c.id!, "reject")}>
+                <button onClick={() => handleAction(c.id!, "reject")} className="reject">
                   Reject
                 </button>
-                <button onClick={() => handleAction(c.id!, "approve")}>
+                <button onClick={() => handleAction(c.id!, "approve")} className="approve">
                   Approve
                 </button>
               </div>
+              )
+
+              }
           </div>
           ))}
         </div>

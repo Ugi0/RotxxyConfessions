@@ -1,5 +1,5 @@
 import express from "express";
-import handleConfessionsRoute from "./routes/confessions.js";
+import handleConfessionsRoute, { handleUpdateConfessionStatus } from "./routes/confessions.js";
 import cookieParser from "cookie-parser";
 import { handleCallback, handleLogin, handleValidation } from "./routes/auth.js";
 import { handleConfessionRoute } from "./routes/confession.js";
@@ -21,14 +21,7 @@ app.use("/api/auth/callback", handleCallback);
 app.get("/api/confessions", handleConfessionsRoute);
 app.get("/api/confession", handleConfessionRoute);
 app.post("/api/confession", handleConfessionRoute);
-app.get("/api/confession/:id", handleConfessionRoute);
-app.post("/api/confessions/:id/approve", (req, res) => {
-  res.json({ message: "Approved " + req.params.id });
-});
-
-app.post("/api/confessions/:id/reject", (req, res) => {
-  res.json({ message: "Rejected " + req.params.id });
-});
+app.post("/api/confessions/:id/:action", handleUpdateConfessionStatus);
 
 app.use((req, res) => {
   res.status(404).json({ error: "Not Found" });

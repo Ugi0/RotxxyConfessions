@@ -8,6 +8,11 @@
   background: #eee;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   line-height: 1.5;
+
+  .reviewed {
+    background: #d4edda;
+    border: 1px solid #c3e6cb;
+  }
 }
 
 .confession-card-header {

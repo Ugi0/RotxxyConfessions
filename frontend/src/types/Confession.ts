@@ -4,6 +4,10 @@ export type Confession = {
   title: string;
   category: Category;
   isNSFW: boolean;
+  isReviewed?: boolean;
+  isApproved?: boolean;
+  isViewed?: boolean;
+  createdAt?: Date;
 };
 
 export type ConfessionStatus = "pending" | "approved" | "rejected";

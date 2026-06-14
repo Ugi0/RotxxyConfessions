@@ -5,5 +5,5 @@ export type SearchParams = {
   isNSFW?: boolean;
   orderBy?: "createdAt" | "title";
   orderDirection?: "asc" | "desc";
-  reviewStatus?: "pending" | "approved" | "rejected";
+  reviewStatus?: "pending" | "reviewed";
 };

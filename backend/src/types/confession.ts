@@ -4,6 +4,10 @@ export type Confession = {
   title: string;
   category: string;
   isNSFW: boolean;
+  isReviewed: boolean;
+  isApproved: boolean;
+  isViewed: boolean;
+  createdAt: Date;
 };
 
 export type SearchParams = {
@@ -13,5 +17,5 @@ export type SearchParams = {
   isNSFW?: boolean;
   orderBy?: "createdAt" | "title";
   orderDirection?: "asc" | "desc";
-  reviewStatus?: "pending" | "approved" | "rejected";
+  reviewStatus?: "pending" | "reviewed";
 };

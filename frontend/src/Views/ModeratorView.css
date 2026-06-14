@@ -37,6 +37,49 @@
     }
 }
 
+.action-buttons {
+
+    .reject {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .approve {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+
+    .status {
+        font-size: 14px;
+        font-weight: bold;
+        color: white;
+        padding: 4px 8px;
+        border-radius: 8px;
+        text-transform: capitalize;
+
+        &.approved {
+            background-color: #28a745;
+        }
+
+        &.rejected {
+            background-color: #dc3545;
+        }
+
+        &.pending {
+            background-color: #ffc107;
+            color: black;
+        }
+    }
+}
+
 .outer-filter-container {
     background-color: #1a1d23;
     height: 100vh;
